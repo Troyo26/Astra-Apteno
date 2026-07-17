@@ -1,39 +1,70 @@
+use iced::widget::{button, column, container, row, text};
+use iced::{Element, Fill, Task};
+use serde::Deserialize;
+
 #[derive(Debug, Clone)]
 enum Message {
     Refresh,
-    RefreshSucceeded,
+    RefreshSucceeded(WorldState),
     RefreshFailed,
 }
 
-use std::time::Duration;
+#[derive(Debug, Clone, Deserialize)]
+pub struct Sortie {
+    pub boss: String,
+    pub faction: String,
+    pub variants: Vec<SortieVariant>,
+}
 
-async fn fake_refresh() {
-    std::thread::sleep(std::time::Duration::from_secs(2));
+#[derive(Debug, Clone, Deserialize)]
+pub struct SortieVariant {
+    #[serde(rename = "missionType")]
+    pub mission_type: String,
+
+    pub modifier: String,
+    pub node: String,
 }
 
 struct AppState {
     connection_state: ConnectionState,
+    world_state: Option<WorldState>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ConnectionState {
     Refreshing,
     Connected,
     Disconnected,
 }
 
-use iced::widget::{button, column, container, row, text};
-use iced::{Element, Fill, Task};
+#[derive(Debug, Clone, Deserialize)]
+pub struct WorldState {
+    pub sortie: Sortie,
+}
+
+async fn refresh_connection() -> Result<WorldState, reqwest::Error> {
+    let world_state = reqwest::get("https://api.warframestat.us/pc/?language=en")
+        .await?
+        .json::<WorldState>()
+        .await?;
+
+    Ok(world_state)
+}
 
 fn update(state: &mut AppState, message: Message) -> Task<Message> {
     match message {
         Message::Refresh => {
             state.connection_state = ConnectionState::Refreshing;
 
-            Task::perform(fake_refresh(), |_| Message::RefreshSucceeded)
+            Task::perform(refresh_connection(), |result| match result {
+                Ok(world_state) => Message::RefreshSucceeded(world_state),
+                Err(_) => Message::RefreshFailed,
+            })
         }
 
-        Message::RefreshSucceeded => {
+        Message::RefreshSucceeded(world_state) => {
             state.connection_state = ConnectionState::Connected;
+            state.world_state = Some(world_state);
 
             Task::none()
         }
@@ -48,7 +79,7 @@ fn update(state: &mut AppState, message: Message) -> Task<Message> {
 
 fn status_text(state: &ConnectionState) -> &'static str {
     match state {
-        ConnectionState::Refreshing => "Refreshing",
+        ConnectionState::Refreshing => "Refreshing...",
         ConnectionState::Connected => "Connected",
         ConnectionState::Disconnected => "Disconnected",
     }
@@ -57,16 +88,27 @@ fn status_text(state: &ConnectionState) -> &'static str {
 fn init() -> AppState {
     AppState {
         connection_state: ConnectionState::Disconnected,
+        world_state: None,
     }
 }
 
 fn view(state: &AppState) -> Element<'_, Message> {
+    let sortie_text = if let Some(world) = &state.world_state {
+        text(&world.sortie.boss)
+    } else {
+        text("No data loaded")
+    };
+    let refresh_button = match state.connection_state {
+        ConnectionState::Refreshing => button(text("Refreshing...")),
+        _ => button(text("Refresh")).on_press(Message::Refresh),
+    };
     container(
         column![
             text("Astra Apteno"),
             text("World State"),
             row![text("Status: "), text(status_text(&state.connection_state)),].spacing(10),
-            button(text("Refresh")).on_press(Message::Refresh),
+            sortie_text,
+            refresh_button,
         ]
         .spacing(20),
     )
