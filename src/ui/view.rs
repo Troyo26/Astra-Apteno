@@ -1,7 +1,7 @@
 // Imports
 
 use crate::app::{AppState, ConnectionState, Message, Tab};
-use crate::ui::sortie;
+use crate::ui::{archon_hunt, sortie};
 use iced::widget::{button, column, container, row, text};
 use iced::{Element, Fill};
 
@@ -22,23 +22,26 @@ pub fn view(state: &AppState) -> Element<'_, Message> {
         text("No data loaded").into()
     };
 
+    let archon_widget = if let Some(world) = &state.world_state {
+        archon_hunt::view(&world.archon_hunt)
+    } else {
+        text("No data loaded").into()
+    };
+
     let refresh_button = match state.connection_state {
         ConnectionState::Refreshing => button(text("Refreshing...")),
         _ => button(text("↻")).on_press(Message::Refresh),
     };
 
-    let content = match state.current_tab {
-        Tab::Home => {
-            column![
-                text("Welcome to Astra Apteno"),
-                text("Version 0.1"),
-                text(status_text(&state.connection_state)),
-            ]
-        }
+    let content: Element<'_, Message> = match state.current_tab {
+        Tab::Home => column![
+            text("Welcome to Astra Apteno"),
+            text("Version 0.1"),
+            text(status_text(&state.connection_state)),
+        ]
+        .into(),
 
-        Tab::WorldState => {
-            column![sortie_widget,]
-        }
+        Tab::WorldState => row![sortie_widget, archon_widget,].spacing(20).into(),
     };
 
     let tab_bar = row![

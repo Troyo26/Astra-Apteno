@@ -1,16 +1,15 @@
 use crate::app::Message;
-use crate::models::{Sortie, SortieVariant};
+use crate::models::{ArchonHunt, ArchonHuntMission};
 use chrono::{DateTime, Utc};
 use iced::widget::{column, container, text};
 use iced::{Element, Fill};
 
-fn mission_view(index: usize, variant: &SortieVariant) -> Element<'static, Message> {
+fn mission_view(index: usize, variant: &ArchonHuntMission) -> Element<'static, Message> {
     container(
         column![
             text(format!("Mission {}", index + 1)).size(20),
             text(format!("•Type: {}", variant.mission_type)),
             text(format!("•Node: {}", variant.node)),
-            text(format!("•Modifier: {}", variant.modifier)),
         ]
         .spacing(3),
     )
@@ -35,25 +34,25 @@ fn expiry_remaining(expiry: &str) -> String {
     format!("{}h {}m", hours, minutes)
 }
 
-fn status(_sortie: &Sortie) -> &'static str {
+fn status(_archon: &ArchonHunt) -> &'static str {
     "Active"
 }
 
-pub fn view(sortie: &Sortie) -> Element<'_, Message> {
+pub fn view(archon: &ArchonHunt) -> Element<'_, Message> {
     let mut content = column![
-        text("Sortie").size(28),
+        text("Archon Hunt").size(28),
         text("──────────────────────────"),
-        text(format!("Status: {}", status(sortie))),
-        text(format!("Expires in: {}", expiry_remaining(&sortie.expiry))),
-        text(format!("Boss: {}", sortie.boss)),
-        text(format!("Faction: {}", sortie.faction)),
+        text(format!("Status: {}", status(archon))),
+        text(format!("Expires in: {}", expiry_remaining(&archon.expiry))),
+        text(format!("Boss: {}", archon.boss)),
+        text(format!("Faction: {}", archon.faction)),
         text(""),
     ]
     .spacing(5);
 
-    for (index, variant) in sortie.variants.iter().enumerate() {
-        content = content.push(mission_view(index, variant)).push(text(""));
+    for (index, mission) in archon.missions.iter().enumerate() {
+        content = content.push(mission_view(index, mission)).push(text(""));
     }
-
+    println!("{:#?}", archon);
     content.into()
 }
