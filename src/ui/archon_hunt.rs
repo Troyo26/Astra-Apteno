@@ -53,6 +53,6 @@ pub fn view(archon: &ArchonHunt) -> Element<'_, Message> {
     for (index, mission) in archon.missions.iter().enumerate() {
         content = content.push(mission_view(index, mission)).push(text(""));
     }
-    println!("{:#?}", archon);
+
     content.into()
 }
