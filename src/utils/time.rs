@@ -24,6 +24,7 @@ pub fn remaining(date: &str) -> String {
     }
 }
 
+#[allow(dead_code)]
 pub fn is_active(activation: &str, expiry: &str) -> bool {
     status(activation, expiry) == EventStatus::Active
 }

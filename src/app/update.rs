@@ -1,5 +1,5 @@
 use crate::api::refresh_connection;
-use crate::app::{AppState, ConnectionState, Message};
+use crate::app::{AppState, ConnectionState, Message, Widget};
 use iced::Task;
 pub fn update(state: &mut AppState, message: Message) -> Task<Message> {
     match message {
@@ -31,6 +31,22 @@ pub fn update(state: &mut AppState, message: Message) -> Task<Message> {
 
         Message::SwitchTab(tab) => {
             state.current_tab = tab;
+
+            Task::none()
+        }
+
+        Message::ToggleWidget(widget) => {
+            match widget {
+                Widget::Sortie => {
+                    state.sortie_expanded = !state.sortie_expanded;
+                }
+                Widget::ArchonHunt => {
+                    state.archon_hunt_expanded = !state.archon_hunt_expanded;
+                }
+                Widget::VoidTrader => {
+                    state.void_trader_expanded = !state.void_trader_expanded;
+                }
+            }
 
             Task::none()
         }

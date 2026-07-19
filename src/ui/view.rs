@@ -2,7 +2,7 @@
 
 use crate::app::{AppState, ConnectionState, Message, Tab};
 use crate::ui::{archon_hunt, cycle, sortie, void_trader};
-use iced::widget::{button, column, container, row, text};
+use iced::widget::{button, column, container, row, scrollable, text};
 use iced::{Element, Fill};
 
 // Functions
@@ -18,22 +18,26 @@ fn status_text(state: &ConnectionState) -> &'static str {
 pub fn view(state: &AppState) -> Element<'_, Message> {
     let world_widgets: Element<'_, Message> = if let Some(world) = &state.world_state {
         // World Cycles(Earth, Cetus, Cambion Drift, Zariman)
-        let cycles = column![
-            cycle::view("Earth", &world.earth_cycle),
-            cycle::view("Cetus", &world.cetus_cycle),
-            cycle::view("Cambion", &world.cambion_cycle),
-            cycle::view("Zariman", &world.zariman_cycle),
-        ]
-        .spacing(20);
+        let cycles = container(
+            column![
+                cycle::view("Earth", &world.earth_cycle),
+                cycle::view("Cetus", &world.cetus_cycle),
+                cycle::view("Cambion", &world.cambion_cycle),
+                cycle::view("Zariman", &world.zariman_cycle),
+                cycle::view("Duviri", &world.duviri_cycle),
+            ]
+            .spacing(5),
+        )
+        .padding(5)
+        .style(container::rounded_box);
         // Event Widgets for sortie, archon hunt and void trader(baro)
-        let events = row![
-            sortie::view(&world.sortie),
+        let events = column![
+            sortie::view(&world.sortie, state.sortie_expanded,),
             archon_hunt::view(&world.archon_hunt),
             void_trader::view(&world.void_trader),
-        ]
-        .spacing(20);
+        ];
 
-        row![events, cycles,].spacing(20).into()
+        column![cycles, events,].into()
     } else {
         text("No data loaded").into()
     };
@@ -68,7 +72,7 @@ pub fn view(state: &AppState) -> Element<'_, Message> {
             .style(container::rounded_box)
             .width(Fill)
             .padding(5),
-        container(content).width(Fill).height(Fill).align_left(Fill),
+        scrollable(container(content).width(Fill).height(Fill).align_left(Fill))
     ];
 
     container(layout)

@@ -11,4 +11,5 @@ pub struct WorldState {
     pub cetus_cycle: Cycle,
     pub cambion_cycle: Cycle,
     pub zariman_cycle: Cycle,
+    pub duviri_cycle: Cycle,
 }

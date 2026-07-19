@@ -1,53 +1,76 @@
-use crate::app::Message;
+use crate::app::{Message, Widget};
 use crate::models::{Sortie, SortieVariant};
-use chrono::{DateTime, Utc};
-use iced::Element;
-use iced::widget::{column, container, text};
+use crate::utils::time::remaining;
+use iced::widget::{Space, button, column, container, row, text};
+use iced::{Alignment, Element, Fill};
 
+// Functions
 fn mission_view(index: usize, variant: &SortieVariant) -> Element<'static, Message> {
-    container(
-        column![
-            text(format!("Mission {}", index + 1)).size(20),
-            text(format!("•Type: {}", variant.mission_type)),
-            text(format!("•Node: {}", variant.node)),
-            text(format!("•Modifier: {}", variant.modifier)),
-        ]
-        .spacing(3),
-    )
+    container(row![
+        text(format!("{}", variant.mission_type)),
+        Space::new().width(Fill),
+        text(format!("{}", variant.node)),
+        Space::new().width(Fill),
+        text(format!("{}", variant.modifier)),
+    ])
     .style(container::rounded_box)
-    .padding(15)
-    .width(300)
     .into()
-}
-
-fn expiry_remaining(expiry: &str) -> String {
-    let expiry = DateTime::parse_from_rfc3339(expiry)
-        .unwrap()
-        .with_timezone(&Utc);
-    let remaining = expiry - Utc::now();
-    if remaining.num_seconds() <= 0 {
-        return "Expired".to_string();
-    }
-
-    let hours = remaining.num_hours();
-    let minutes = remaining.num_minutes() % 60;
-
-    format!("{}h {}m", hours, minutes)
 }
 
 fn status(_sortie: &Sortie) -> &'static str {
     "Active"
 }
 
-pub fn view(sortie: &Sortie) -> Element<'_, Message> {
+// Compact Widget
+
+fn compact(sortie: &Sortie) -> Element<'_, Message> {
+    let timer = remaining(&sortie.expiry);
+
+    button(
+        container(
+            row![
+                text("▶"),
+                text("Sortie"),
+                Space::new().width(Fill),
+                text(timer),
+            ]
+            .align_y(Alignment::Center),
+        )
+        .style(container::rounded_box)
+        .padding(10),
+    )
+    .width(500)
+    .style(button::text)
+    .on_press(Message::ToggleWidget(Widget::Sortie))
+    .into()
+}
+
+// Expanded Widget
+
+fn expanded_widget(sortie: &Sortie) -> Element<'_, Message> {
     let mut content = column![
-        text("Sortie").size(28),
-        text("──────────────────────────"),
-        text(format!("Status: {}", status(sortie))),
-        text(format!("Expires in: {}", expiry_remaining(&sortie.expiry))),
-        text(format!("Boss: {}", sortie.boss)),
-        text(format!("Faction: {}", sortie.faction)),
-        text(""),
+        button(
+            container(
+                row![
+                    text("▼"),
+                    text("Sortie"),
+                    Space::new().width(Fill),
+                    text(remaining(&sortie.expiry)),
+                ]
+                .align_y(Alignment::Center),
+            )
+            .style(container::rounded_box)
+            .padding(10),
+        )
+        .style(button::text)
+        .on_press(Message::ToggleWidget(Widget::Sortie)),
+        row![
+            text(format!("Status: {}", status(sortie))),
+            Space::new().width(Fill),
+            text(format!("Boss: {}", sortie.boss)),
+            Space::new().width(Fill),
+            text(format!("Faction: {}", sortie.faction)),
+        ]
     ]
     .spacing(5);
 
@@ -55,5 +78,14 @@ pub fn view(sortie: &Sortie) -> Element<'_, Message> {
         content = content.push(mission_view(index, variant)).push(text(""));
     }
 
-    content.into()
+    content.width(500).into()
+}
+
+// View Function
+pub fn view(sortie: &Sortie, expanded: bool) -> Element<'_, Message> {
+    if expanded {
+        expanded_widget(sortie)
+    } else {
+        compact(sortie)
+    }
 }
