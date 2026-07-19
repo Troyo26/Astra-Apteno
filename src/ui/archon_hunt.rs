@@ -1,8 +1,8 @@
 use crate::app::Message;
 use crate::models::{ArchonHunt, ArchonHuntMission};
 use chrono::{DateTime, Utc};
+use iced::Element;
 use iced::widget::{column, container, text};
-use iced::{Element, Fill};
 
 fn mission_view(index: usize, variant: &ArchonHuntMission) -> Element<'static, Message> {
     container(

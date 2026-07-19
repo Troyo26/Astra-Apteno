@@ -4,11 +4,15 @@ use iced::Task;
 pub fn update(state: &mut AppState, message: Message) -> Task<Message> {
     match message {
         Message::Refresh => {
+            println!("Refresh message received");
             state.connection_state = ConnectionState::Refreshing;
 
             Task::perform(refresh_connection(), |result| match result {
-                Ok(world_state) => Message::RefreshSucceeded(world_state),
-                Err(_) => Message::RefreshFailed,
+                Ok(world) => Message::RefreshSucceeded(world),
+                Err(err) => {
+                    eprintln!("{:#}", err);
+                    Message::RefreshFailed
+                }
             })
         }
 

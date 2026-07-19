@@ -1,8 +1,8 @@
 use crate::app::Message;
 use crate::models::{Sortie, SortieVariant};
 use chrono::{DateTime, Utc};
+use iced::Element;
 use iced::widget::{column, container, text};
-use iced::{Element, Fill};
 
 fn mission_view(index: usize, variant: &SortieVariant) -> Element<'static, Message> {
     container(

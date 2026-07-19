@@ -1,7 +1,7 @@
 // Imports
 
 use crate::app::{AppState, ConnectionState, Message, Tab};
-use crate::ui::{archon_hunt, sortie};
+use crate::ui::{archon_hunt, cycle, sortie, void_trader};
 use iced::widget::{button, column, container, row, text};
 use iced::{Element, Fill};
 
@@ -16,23 +16,35 @@ fn status_text(state: &ConnectionState) -> &'static str {
 
 // View function for Iced
 pub fn view(state: &AppState) -> Element<'_, Message> {
-    let sortie_widget = if let Some(world) = &state.world_state {
-        sortie::view(&world.sortie)
+    let world_widgets: Element<'_, Message> = if let Some(world) = &state.world_state {
+        // World Cycles(Earth, Cetus, Cambion Drift, Zariman)
+        let cycles = column![
+            cycle::view("Earth", &world.earth_cycle),
+            cycle::view("Cetus", &world.cetus_cycle),
+            cycle::view("Cambion", &world.cambion_cycle),
+            cycle::view("Zariman", &world.zariman_cycle),
+        ]
+        .spacing(20);
+        // Event Widgets for sortie, archon hunt and void trader(baro)
+        let events = row![
+            sortie::view(&world.sortie),
+            archon_hunt::view(&world.archon_hunt),
+            void_trader::view(&world.void_trader),
+        ]
+        .spacing(20);
+
+        row![events, cycles,].spacing(20).into()
     } else {
         text("No data loaded").into()
     };
 
-    let archon_widget = if let Some(world) = &state.world_state {
-        archon_hunt::view(&world.archon_hunt)
-    } else {
-        text("No data loaded").into()
-    };
-
+    // Refresh button
     let refresh_button = match state.connection_state {
         ConnectionState::Refreshing => button(text("Refreshing...")),
         _ => button(text("↻")).on_press(Message::Refresh),
     };
 
+    // Element that contains the current tab content
     let content: Element<'_, Message> = match state.current_tab {
         Tab::Home => column![
             text("Welcome to Astra Apteno"),
@@ -41,7 +53,7 @@ pub fn view(state: &AppState) -> Element<'_, Message> {
         ]
         .into(),
 
-        Tab::WorldState => row![sortie_widget, archon_widget,].spacing(20).into(),
+        Tab::WorldState => world_widgets,
     };
 
     let tab_bar = row![
