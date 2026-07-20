@@ -1,19 +1,41 @@
 use crate::app::{Message, Widget};
 use crate::models::{Sortie, SortieVariant};
+use crate::ui::{divider, header, style};
 use crate::utils::time::remaining;
-use iced::widget::{Space, button, column, container, row, text};
-use iced::{Alignment, Element, Fill};
+use iced::widget::{column, container, row, text};
+use iced::{Element, Fill};
 
 // Functions
-fn mission_view(index: usize, variant: &SortieVariant) -> Element<'static, Message> {
+
+fn short_modifier(modifier: &str) -> &str {
+    match modifier {
+        "Environmental Hazard: Radiation Pockets" => "Radiation Hazard",
+        "Environmental Hazard: Magnetic Anomalies" => "Magnetic Hazard",
+        "Environmental Hazard: Cryogenic Leak" => "Cold Hazard",
+        "Enemy Elemental Enhancement: Radiation" => "Radiation Enemies",
+        "Enemy Elemental Enhancement: Corrosive" => "Corrosive Enemies",
+        "Enemy Elemental Enhancement: Toxin" => "Toxin Enemies",
+        "Enemy Physical Enhancement" => "Physical Enemies",
+        "Eximus Stronghold" => "Eximus",
+        "Weapon Restriction: Shotgun Only" => "Shotguns Only",
+        "Weapon Restriction: Bow Only" => "Bows Only",
+        "Weapon Restriction: Sniper Only" => "Snipers Only",
+        "Weapon Restriction: Pistol Only" => "Pistol Only",
+        other => other,
+    }
+}
+
+fn mission_view<'a>(variant: &'a SortieVariant) -> Element<'a, Message> {
     container(row![
-        text(format!("{}", variant.mission_type)),
-        Space::new().width(Fill),
-        text(format!("{}", variant.node)),
-        Space::new().width(Fill),
-        text(format!("{}", variant.modifier)),
+        container(text(&variant.mission_type))
+            .width(Fill)
+            .align_left(Fill),
+        container(text(&variant.node)).width(Fill).center_x(Fill),
+        container(text(short_modifier(&variant.modifier)))
+            .width(Fill)
+            .align_right(Fill),
     ])
-    .style(container::rounded_box)
+    .padding(8)
     .into()
 }
 
@@ -24,24 +46,14 @@ fn status(_sortie: &Sortie) -> &'static str {
 // Compact Widget
 
 fn compact(sortie: &Sortie) -> Element<'_, Message> {
-    let timer = remaining(&sortie.expiry);
-
-    button(
-        container(
-            row![
-                text("▶"),
-                text("Sortie"),
-                Space::new().width(Fill),
-                text(timer),
-            ]
-            .align_y(Alignment::Center),
-        )
-        .style(container::rounded_box)
-        .padding(10),
-    )
+    container(header::view(
+        "Sortie",
+        remaining(&sortie.expiry),
+        false,
+        Widget::Sortie,
+    ))
     .width(500)
-    .style(button::text)
-    .on_press(Message::ToggleWidget(Widget::Sortie))
+    .style(style::widget)
     .into()
 }
 
@@ -49,36 +61,28 @@ fn compact(sortie: &Sortie) -> Element<'_, Message> {
 
 fn expanded_widget(sortie: &Sortie) -> Element<'_, Message> {
     let mut content = column![
-        button(
-            container(
-                row![
-                    text("▼"),
-                    text("Sortie"),
-                    Space::new().width(Fill),
-                    text(remaining(&sortie.expiry)),
-                ]
-                .align_y(Alignment::Center),
-            )
-            .style(container::rounded_box)
-            .padding(10),
-        )
-        .style(button::text)
-        .on_press(Message::ToggleWidget(Widget::Sortie)),
-        row![
-            text(format!("Status: {}", status(sortie))),
-            Space::new().width(Fill),
-            text(format!("Boss: {}", sortie.boss)),
-            Space::new().width(Fill),
-            text(format!("Faction: {}", sortie.faction)),
-        ]
-    ]
-    .spacing(5);
+        header::view("Sortie", remaining(&sortie.expiry), true, Widget::Sortie),
+        divider::view(),
+        container(row![
+            container(text(format!("{}", status(sortie))))
+                .width(Fill)
+                .align_left(Fill),
+            container(text(format!("{}", sortie.boss)))
+                .width(Fill)
+                .center_x(Fill),
+            container(text(format!("{}", sortie.faction)))
+                .width(Fill)
+                .align_right(Fill),
+        ])
+        .padding(8),
+    ];
 
-    for (index, variant) in sortie.variants.iter().enumerate() {
-        content = content.push(mission_view(index, variant)).push(text(""));
+    for variant in &sortie.variants {
+        content = content.push(divider::view());
+        content = content.push(mission_view(variant));
     }
 
-    content.width(500).into()
+    container(content).width(500).style(style::widget).into()
 }
 
 // View Function

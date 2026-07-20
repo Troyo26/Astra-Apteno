@@ -2,17 +2,16 @@ use crate::app::Message;
 use crate::models::Cycle;
 use crate::utils::time::remaining;
 
-use iced::widget::{Space, column, container, row, text};
+use iced::widget::{container, row, text};
 use iced::{Element, Fill};
 
 pub fn view<'a>(title: &'static str, cycle: &'a Cycle) -> Element<'a, Message> {
     row![
-        text(title),
-        Space::new().width(Fill),
-        text(&cycle.state),
-        Space::new().width(Fill),
-        text(remaining(&cycle.expiry)),
+        container(text(title)).width(Fill).align_left(Fill),
+        container(text(&cycle.state)).width(Fill).center_x(Fill),
+        container(text(remaining(&cycle.expiry)))
+            .width(Fill)
+            .align_right(Fill),
     ]
-    .width(200)
     .into()
 }

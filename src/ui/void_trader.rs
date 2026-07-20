@@ -1,36 +1,81 @@
-use crate::app::Message;
+use crate::app::{Message, Widget};
 use crate::models::{EventStatus, VoidTrader};
+use crate::ui::{divider, header, style};
 use crate::utils::time::{remaining, status};
-use iced::Element;
-use iced::widget::{column, text};
+use iced::widget::{column, container, row, text};
+use iced::{Element, Fill};
 
-pub fn view(trader: &VoidTrader) -> Element<'_, Message> {
-    let event_status = status(&trader.activation, &trader.expiry);
+// Functions
 
-    let status_text = match event_status {
-        EventStatus::Upcoming => "Coming Soon",
-        EventStatus::Active => "Available",
-        EventStatus::Expired => "Gone",
-    };
+fn current_status(baro: &VoidTrader) -> String {
+    let event_status = status(&baro.activation, &baro.expiry);
 
-    let timer = match event_status {
-        EventStatus::Upcoming => format!("Arrives in: {}", remaining(&trader.activation)),
+    match event_status {
+        EventStatus::Upcoming => {
+            format!("Arrives in {}", remaining(&baro.activation))
+        }
 
-        EventStatus::Active => format!("Leaves in: {}", remaining(&trader.expiry)),
+        EventStatus::Active => {
+            format!("Leaves in {}", remaining(&baro.expiry))
+        }
 
         EventStatus::Expired => "Expired".to_string(),
-    };
+    }
+}
 
+fn status_text(baro: &VoidTrader) -> &'static str {
+    match status(&baro.activation, &baro.expiry) {
+        EventStatus::Upcoming => "Coming Soon",
+        EventStatus::Active => "In Relay",
+        EventStatus::Expired => "On the Move",
+    }
+}
+
+// Compacted Widget
+
+fn compact(baro: &VoidTrader) -> Element<'_, Message> {
+    container(header::view(
+        "Void Trader",
+        current_status(baro),
+        false,
+        Widget::VoidTrader,
+    ))
+    .width(500)
+    .style(style::widget)
+    .into()
+}
+
+// Expanded Widget
+
+fn expanded_widget(baro: &VoidTrader) -> Element<'_, Message> {
     let content = column![
-        text("Void Trader").size(28),
-        text("──────────────────────────"),
-        text(format!("Status: {}", status_text)),
-        text(timer),
-        text(format!("Character: {}", trader.character)),
-        text(format!("Location: {}", trader.location)),
-        text(""),
-    ]
-    .spacing(5);
+        header::view(
+            "Void Trader",
+            current_status(baro),
+            true,
+            Widget::VoidTrader,
+        ),
+        divider::view(),
+        container(row![
+            container(text(status_text(baro)))
+                .width(Fill)
+                .align_left(Fill),
+            container(text(&baro.character)).width(Fill).center_x(Fill),
+            container(text(&baro.location))
+                .width(Fill)
+                .align_right(Fill),
+        ])
+        .padding(8),
+    ];
 
-    content.into()
+    container(content).width(500).style(style::widget).into()
+}
+
+// View Function
+pub fn view(baro: &VoidTrader, expanded: bool) -> Element<'_, Message> {
+    if expanded {
+        expanded_widget(baro)
+    } else {
+        compact(baro)
+    }
 }

@@ -1,58 +1,80 @@
-use crate::app::Message;
+use crate::app::{Message, Widget};
 use crate::models::{ArchonHunt, ArchonHuntMission};
-use chrono::{DateTime, Utc};
-use iced::Element;
-use iced::widget::{column, container, text};
+use crate::ui::{divider, header, style};
+use crate::utils::time::remaining;
+use iced::widget::{column, container, row, text};
+use iced::{Element, Fill};
 
-fn mission_view(index: usize, variant: &ArchonHuntMission) -> Element<'static, Message> {
-    container(
-        column![
-            text(format!("Mission {}", index + 1)).size(20),
-            text(format!("•Type: {}", variant.mission_type)),
-            text(format!("•Node: {}", variant.node)),
-        ]
-        .spacing(3),
-    )
-    .style(container::rounded_box)
-    .padding(15)
-    .width(300)
+// Functions
+
+fn mission_view<'a>(variant: &'a ArchonHuntMission) -> Element<'a, Message> {
+    container(row![
+        container(text(&variant.mission_type))
+            .width(Fill)
+            .align_left(Fill),
+        container(text(&variant.node)).width(Fill).align_right(Fill),
+    ])
+    .padding(8)
     .into()
-}
-
-fn expiry_remaining(expiry: &str) -> String {
-    let expiry = DateTime::parse_from_rfc3339(expiry)
-        .unwrap()
-        .with_timezone(&Utc);
-    let remaining = expiry - Utc::now();
-    if remaining.num_seconds() <= 0 {
-        return "Expired".to_string();
-    }
-
-    let hours = remaining.num_hours();
-    let minutes = remaining.num_minutes() % 60;
-
-    format!("{}h {}m", hours, minutes)
 }
 
 fn status(_archon: &ArchonHunt) -> &'static str {
     "Active"
 }
 
-pub fn view(archon: &ArchonHunt) -> Element<'_, Message> {
-    let mut content = column![
-        text("Archon Hunt").size(28),
-        text("──────────────────────────"),
-        text(format!("Status: {}", status(archon))),
-        text(format!("Expires in: {}", expiry_remaining(&archon.expiry))),
-        text(format!("Boss: {}", archon.boss)),
-        text(format!("Faction: {}", archon.faction)),
-        text(""),
-    ]
-    .spacing(5);
+// Compact Widget
 
-    for (index, mission) in archon.missions.iter().enumerate() {
-        content = content.push(mission_view(index, mission)).push(text(""));
+fn compact(archon: &ArchonHunt) -> Element<'_, Message> {
+    container(header::view(
+        "Archon Hunt",
+        remaining(&archon.expiry),
+        false,
+        Widget::ArchonHunt,
+    ))
+    .width(500)
+    .style(style::widget)
+    .into()
+}
+
+// Expanded Widget
+
+fn expanded_widget(archon: &ArchonHunt) -> Element<'_, Message> {
+    let mut content = column![
+        header::view(
+            "Archon Hunt",
+            remaining(&archon.expiry),
+            true,
+            Widget::ArchonHunt
+        ),
+        divider::view(),
+        container(row![
+            container(text(format!("{}", status(archon))))
+                .width(Fill)
+                .align_left(Fill),
+            container(text(format!("{}", archon.boss)))
+                .width(Fill)
+                .center_x(Fill),
+            container(text(format!("{}", archon.faction)))
+                .width(Fill)
+                .align_right(Fill),
+        ])
+        .padding(8),
+    ];
+
+    for variant in &archon.missions {
+        content = content.push(divider::view());
+        content = content.push(mission_view(variant));
     }
 
-    content.into()
+    container(content).width(500).style(style::widget).into()
+}
+
+// View Function
+
+pub fn view(archon: &ArchonHunt, expanded: bool) -> Element<'_, Message> {
+    if expanded {
+        expanded_widget(archon)
+    } else {
+        compact(archon)
+    }
 }
