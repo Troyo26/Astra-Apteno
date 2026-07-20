@@ -50,31 +50,39 @@ pub fn view(state: &AppState) -> Element<'_, Message> {
     // Refresh button
     let refresh_button = match state.connection_state {
         ConnectionState::Refreshing => button(text("Refreshing...")),
-        _ => button(text("↻")).on_press(Message::Refresh),
+        _ => button(text("↻"))
+            .on_press(Message::Refresh)
+            .style(style::menu_button),
     };
 
     // Element that contains the current tab content
     let content: Element<'_, Message> = match state.current_tab {
-        Tab::Home => column![
+        Tab::Home => container(column![
             text("Welcome to Astra Apteno"),
             text("Version 0.1"),
             text(status_text(&state.connection_state)),
-        ]
+        ])
+        .padding(8)
+        .style(style::widget)
         .into(),
 
         Tab::WorldState => world_widgets,
     };
 
     let tab_bar = row![
-        button("Home").on_press(Message::SwitchTab(Tab::Home)),
-        button("World State").on_press(Message::SwitchTab(Tab::WorldState)),
+        button("Home")
+            .on_press(Message::SwitchTab(Tab::Home))
+            .style(style::menu_button),
+        button("World State")
+            .on_press(Message::SwitchTab(Tab::WorldState))
+            .style(style::menu_button),
         refresh_button,
     ]
     .spacing(10);
 
     let layout = column![
         container(tab_bar)
-            .style(container::rounded_box)
+            .style(style::widget)
             .width(Fill)
             .padding(5),
         scrollable(container(content).width(Fill).height(Fill).align_left(Fill))
@@ -84,5 +92,6 @@ pub fn view(state: &AppState) -> Element<'_, Message> {
         .width(Fill)
         .height(Fill)
         .padding(10)
+        .style(style::background)
         .into()
 }

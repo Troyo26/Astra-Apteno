@@ -1,4 +1,5 @@
 use crate::app::{Message, Widget};
+use crate::ui::style;
 use iced::widget::{Space, button, container, row, text};
 use iced::{Alignment, Element, Fill};
 
@@ -21,6 +22,6 @@ pub fn view<'a>(
         .padding(2),
     )
     .on_press(Message::ToggleWidget(widget))
-    .style(button::text)
+    .style(style::menu_button)
     .into()
 }
