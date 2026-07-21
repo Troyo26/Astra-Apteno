@@ -1,6 +1,6 @@
 use crate::app::{Message, Widget};
 use crate::models::{ArchonHunt, ArchonHuntMission};
-use crate::ui::{divider, header, style};
+use crate::ui::components::{divider, header, style};
 use crate::utils::time::remaining;
 use iced::widget::{column, container, row, text};
 use iced::{Element, Fill};

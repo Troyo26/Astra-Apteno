@@ -7,6 +7,7 @@ pub struct AppState {
     pub sortie_expanded: bool,
     pub archon_hunt_expanded: bool,
     pub void_trader_expanded: bool,
+    pub arbitration_expanded: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

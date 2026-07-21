@@ -1,6 +1,6 @@
 // divider.rs
 
-use crate::ui::style;
+use crate::ui::components::style;
 use iced::widget::container;
 use iced::{Element, Fill};
 

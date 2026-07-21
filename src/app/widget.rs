@@ -4,4 +4,5 @@ pub enum Widget {
     Sortie,
     ArchonHunt,
     VoidTrader,
+    Arbitrations,
 }

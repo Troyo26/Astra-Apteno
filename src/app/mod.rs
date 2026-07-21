@@ -25,6 +25,7 @@ fn init() -> (AppState, Task<Message>) {
             sortie_expanded: false,
             archon_hunt_expanded: false,
             void_trader_expanded: false,
+            arbitration_expanded: false,
         },
         Task::done(Message::Refresh),
     )

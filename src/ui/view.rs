@@ -1,7 +1,8 @@
 // Imports
 
 use crate::app::{AppState, ConnectionState, Message, Tab};
-use crate::ui::{archon_hunt, cycle, divider, sortie, style, void_trader};
+use crate::ui::components::{divider, style};
+use crate::ui::{arbitration, archon_hunt, cycle, sortie, void_trader};
 use iced::widget::{button, column, container, row, scrollable, text};
 use iced::{Element, Fill};
 
@@ -40,6 +41,7 @@ pub fn view(state: &AppState) -> Element<'_, Message> {
             sortie::view(&world.sortie, state.sortie_expanded,),
             archon_hunt::view(&world.archon_hunt, state.archon_hunt_expanded),
             void_trader::view(&world.void_trader, state.void_trader_expanded),
+            arbitration::view(&world.arbitration, state.arbitration_expanded),
         ];
 
         column![cycles, events,].into()

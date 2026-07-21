@@ -46,6 +46,9 @@ pub fn update(state: &mut AppState, message: Message) -> Task<Message> {
                 Widget::VoidTrader => {
                     state.void_trader_expanded = !state.void_trader_expanded;
                 }
+                Widget::Arbitrations => {
+                    state.arbitration_expanded = !state.arbitration_expanded;
+                }
             }
 
             Task::none()
