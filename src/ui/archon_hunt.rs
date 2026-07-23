@@ -27,9 +27,9 @@ fn status(_archon: &ArchonHunt) -> &'static str {
 fn compact(archon: &ArchonHunt) -> Element<'_, Message> {
     container(header::view(
         "Archon Hunt",
-        remaining(&archon.expiry),
+        Some(remaining(&archon.expiry)),
         false,
-        Widget::ArchonHunt,
+        Message::ToggleWidget(Widget::ArchonHunt),
     ))
     .width(500)
     .style(style::widget)
@@ -42,9 +42,9 @@ fn expanded_widget(archon: &ArchonHunt) -> Element<'_, Message> {
     let mut content = column![
         header::view(
             "Archon Hunt",
-            remaining(&archon.expiry),
+            Some(remaining(&archon.expiry)),
             true,
-            Widget::ArchonHunt
+            Message::ToggleWidget(Widget::ArchonHunt),
         ),
         divider::view(),
         container(row![

@@ -48,9 +48,9 @@ fn status(_sortie: &Sortie) -> &'static str {
 fn compact(sortie: &Sortie) -> Element<'_, Message> {
     container(header::view(
         "Sortie",
-        remaining(&sortie.expiry),
+        Some(remaining(&sortie.expiry)),
         false,
-        Widget::Sortie,
+        Message::ToggleWidget(Widget::Sortie),
     ))
     .width(500)
     .style(style::widget)
@@ -61,7 +61,12 @@ fn compact(sortie: &Sortie) -> Element<'_, Message> {
 
 fn expanded_widget(sortie: &Sortie) -> Element<'_, Message> {
     let mut content = column![
-        header::view("Sortie", remaining(&sortie.expiry), true, Widget::Sortie),
+        header::view(
+            "Sortie",
+            Some(remaining(&sortie.expiry)),
+            true,
+            Message::ToggleWidget(Widget::Sortie),
+        ),
         divider::view(),
         container(row![
             container(text(format!("{}", status(sortie))))

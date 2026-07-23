@@ -36,9 +36,9 @@ fn status_text(baro: &VoidTrader) -> &'static str {
 fn compact(baro: &VoidTrader) -> Element<'_, Message> {
     container(header::view(
         "Void Trader",
-        current_status(baro),
+        Some(current_status(baro)),
         false,
-        Widget::VoidTrader,
+        Message::ToggleWidget(Widget::VoidTrader),
     ))
     .width(500)
     .style(style::widget)
@@ -51,9 +51,9 @@ fn expanded_widget(baro: &VoidTrader) -> Element<'_, Message> {
     let content = column![
         header::view(
             "Void Trader",
-            current_status(baro),
+            Some(current_status(baro)),
             true,
-            Widget::VoidTrader,
+            Message::ToggleWidget(Widget::VoidTrader),
         ),
         divider::view(),
         container(row![

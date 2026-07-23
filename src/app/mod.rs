@@ -7,6 +7,7 @@ use crate::ui::view::view;
 use iced::{Subscription, Task, time};
 pub use message::*;
 pub use state::*;
+use std::collections::HashSet;
 use std::time::Duration;
 pub use update::update;
 pub use widget::*;
@@ -22,10 +23,8 @@ fn init() -> (AppState, Task<Message>) {
             world_state: None,
             current_tab: Tab::Home,
 
-            sortie_expanded: false,
-            archon_hunt_expanded: false,
-            void_trader_expanded: false,
-            arbitration_expanded: false,
+            expanded_widgets: HashSet::new(),
+            expanded_activities: HashSet::new(),
         },
         Task::done(Message::Refresh),
     )

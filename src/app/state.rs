@@ -1,13 +1,14 @@
+use crate::app::Widget;
 use crate::models::WorldState;
+use std::collections::HashSet;
 
 pub struct AppState {
     pub connection_state: ConnectionState,
     pub world_state: Option<WorldState>,
     pub current_tab: Tab,
-    pub sortie_expanded: bool,
-    pub archon_hunt_expanded: bool,
-    pub void_trader_expanded: bool,
-    pub arbitration_expanded: bool,
+
+    pub expanded_widgets: HashSet<Widget>,
+    pub expanded_activities: HashSet<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

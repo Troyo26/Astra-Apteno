@@ -7,4 +7,5 @@ pub enum Message {
     RefreshFailed,
     SwitchTab(Tab),
     ToggleWidget(Widget),
+    ToggleActivity(String),
 }

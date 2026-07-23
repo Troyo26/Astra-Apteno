@@ -23,22 +23,22 @@ fn info_row<'a>(arbitration: &'a Arbitration) -> Element<'a, Message> {
     .into()
 }
 
-fn status(arbitration: &Arbitration) -> &'static str {
+/* fn status(arbitration: &Arbitration) -> &'static str {
     if arbitration.mission_type == "Unknown" {
         "Inactive"
     } else {
         "Active"
     }
-}
+} */
 
 // Compact Widget
 
-fn compact(_arbitrations: &Arbitration) -> Element<'_, Message> {
+fn compact(_arbitration: &Arbitration) -> Element<'_, Message> {
     container(header::view(
         "Arbitration",
-        remaining(&_arbitrations.expiry),
+        Some(remaining(&_arbitration.expiry)),
         false,
-        Widget::Arbitrations,
+        Message::ToggleWidget(Widget::Arbitration),
     ))
     .width(500)
     .style(style::widget)
@@ -47,26 +47,26 @@ fn compact(_arbitrations: &Arbitration) -> Element<'_, Message> {
 
 // Expanded Widget
 
-fn expanded_widget(_arbitrations: &Arbitration) -> Element<'_, Message> {
+fn expanded_widget(_arbitration: &Arbitration) -> Element<'_, Message> {
     let mut content = column![header::view(
         "Arbitration",
-        remaining(&_arbitrations.expiry),
+        Some(remaining(&_arbitration.expiry)),
         true,
-        Widget::Arbitrations
+        Message::ToggleWidget(Widget::Arbitration),
     )];
 
     content = content.push(divider::view());
-    content = content.push(info_row(_arbitrations));
+    content = content.push(info_row(_arbitration));
 
     container(content).width(500).style(style::widget).into()
 }
 
 // View Function
 
-pub fn view(_arbitrations: &Arbitration, expanded: bool) -> Element<'_, Message> {
+pub fn view(_arbitration: &Arbitration, expanded: bool) -> Element<'_, Message> {
     if expanded {
-        expanded_widget(_arbitrations)
+        expanded_widget(_arbitration)
     } else {
-        compact(_arbitrations)
+        compact(_arbitration)
     }
 }

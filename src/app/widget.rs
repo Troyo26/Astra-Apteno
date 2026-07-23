@@ -1,8 +1,9 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[allow(dead_code)]
 pub enum Widget {
     Sortie,
     ArchonHunt,
     VoidTrader,
-    Arbitrations,
+    Arbitration,
+    AlertsEvents,
 }

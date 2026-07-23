@@ -1,5 +1,5 @@
 use crate::api::refresh_connection;
-use crate::app::{AppState, ConnectionState, Message, Widget};
+use crate::app::{AppState, ConnectionState, Message};
 use iced::Task;
 pub fn update(state: &mut AppState, message: Message) -> Task<Message> {
     match message {
@@ -36,19 +36,16 @@ pub fn update(state: &mut AppState, message: Message) -> Task<Message> {
         }
 
         Message::ToggleWidget(widget) => {
-            match widget {
-                Widget::Sortie => {
-                    state.sortie_expanded = !state.sortie_expanded;
-                }
-                Widget::ArchonHunt => {
-                    state.archon_hunt_expanded = !state.archon_hunt_expanded;
-                }
-                Widget::VoidTrader => {
-                    state.void_trader_expanded = !state.void_trader_expanded;
-                }
-                Widget::Arbitrations => {
-                    state.arbitration_expanded = !state.arbitration_expanded;
-                }
+            if !state.expanded_widgets.insert(widget) {
+                state.expanded_widgets.remove(&widget);
+            }
+
+            Task::none()
+        }
+
+        Message::ToggleActivity(id) => {
+            if !state.expanded_activities.insert(id.clone()) {
+                state.expanded_activities.remove(&id);
             }
 
             Task::none()

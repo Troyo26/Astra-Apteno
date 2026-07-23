@@ -1,3 +1,4 @@
+pub mod alertsevents;
 pub mod arbitration;
 pub mod archon_hunt;
 pub mod components;

@@ -1,8 +1,8 @@
 // Imports
 
-use crate::app::{AppState, ConnectionState, Message, Tab};
+use crate::app::{AppState, ConnectionState, Message, Tab, Widget};
 use crate::ui::components::{divider, style};
-use crate::ui::{arbitration, archon_hunt, cycle, sortie, void_trader};
+use crate::ui::{alertsevents, arbitration, archon_hunt, cycle, sortie, void_trader};
 use iced::widget::{button, column, container, row, scrollable, text};
 use iced::{Element, Fill};
 
@@ -38,10 +38,27 @@ pub fn view(state: &AppState) -> Element<'_, Message> {
         .style(style::widget);
         // Event Widgets for sortie, archon hunt and void trader(baro)
         let events = column![
-            sortie::view(&world.sortie, state.sortie_expanded,),
-            archon_hunt::view(&world.archon_hunt, state.archon_hunt_expanded),
-            void_trader::view(&world.void_trader, state.void_trader_expanded),
-            arbitration::view(&world.arbitration, state.arbitration_expanded),
+            sortie::view(
+                &world.sortie,
+                state.expanded_widgets.contains(&Widget::Sortie),
+            ),
+            archon_hunt::view(
+                &world.archon_hunt,
+                state.expanded_widgets.contains(&Widget::ArchonHunt),
+            ),
+            void_trader::view(
+                &world.void_trader,
+                state.expanded_widgets.contains(&Widget::VoidTrader),
+            ),
+            arbitration::view(
+                &world.arbitration,
+                state.expanded_widgets.contains(&Widget::Arbitration),
+            ),
+            alertsevents::view(
+                &world.alerts_events,
+                state.expanded_widgets.contains(&Widget::AlertsEvents),
+                &state.expanded_activities,
+            ),
         ];
 
         column![cycles, events,].into()

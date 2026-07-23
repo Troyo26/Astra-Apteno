@@ -1,25 +1,29 @@
-use crate::app::{Message, Widget};
+use crate::app::Message;
 use crate::ui::components::style;
 
 use iced::widget::{Space, button, row, text};
 use iced::{Alignment, Element, Fill};
 
 pub fn view<'a>(
-    title: &'static str,
-    timer: impl Into<String>,
+    title: &'a str,
+    timer: Option<String>,
     expanded: bool,
-    widget: Widget,
+    on_press: Message,
 ) -> Element<'a, Message> {
-    button(
+    let row = if let Some(timer) = timer {
         row![
             text(if expanded { "▼" } else { "▶" }),
             text(title),
             Space::new().width(Fill),
-            text(timer.into()),
+            text(timer),
         ]
-        .align_y(Alignment::Center),
-    )
-    .style(style::menu_button)
-    .on_press(Message::ToggleWidget(widget))
-    .into()
+    } else {
+        row![text(if expanded { "▼" } else { "▶" }), text(title),]
+    };
+
+    button(row.align_y(Alignment::Center))
+        .style(style::menu_button)
+        .on_press(on_press)
+        .width(Fill)
+        .into()
 }

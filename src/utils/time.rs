@@ -2,6 +2,23 @@ use chrono::{DateTime, Utc};
 
 use crate::models::EventStatus;
 
+pub fn progress(activation: &str, expiry: &str) -> f32 {
+    let start = DateTime::parse_from_rfc3339(activation)
+        .unwrap()
+        .with_timezone(&Utc);
+
+    let end = DateTime::parse_from_rfc3339(expiry)
+        .unwrap()
+        .with_timezone(&Utc);
+
+    let now = Utc::now();
+
+    let total = (end - start).num_seconds() as f32;
+    let elapsed = (now - start).num_seconds() as f32;
+
+    (elapsed / total).clamp(0.0, 1.0)
+}
+
 pub fn remaining(date: &str) -> String {
     match DateTime::parse_from_rfc3339(date) {
         Ok(date) => {

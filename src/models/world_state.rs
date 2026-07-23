@@ -1,4 +1,4 @@
-use crate::models::{Arbitration, ArchonHunt, Cycle, Sortie, VoidTrader};
+use crate::models::{AlertsEvents, Arbitration, ArchonHunt, Cycle, Sortie, VoidTrader};
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
@@ -13,4 +13,7 @@ pub struct WorldState {
     pub zariman_cycle: Cycle,
     pub duviri_cycle: Cycle,
     pub arbitration: Arbitration,
+
+    #[serde(flatten)]
+    pub alerts_events: AlertsEvents,
 }
